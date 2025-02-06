@@ -11,6 +11,12 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/my_picture
     username: root
     password: wlc040305
+  profiles:
+    active: local
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false

@@ -41,22 +41,6 @@ public class CosManager {
                 file);
         PicOperations picOperations = new PicOperations();
         picOperations.setIsPicInfo(1);
-        List<PicOperations.Rule> rules = new ArrayList<>();
-        String webpKey = FileUtil.mainName(key) + ".webp";
-        PicOperations.Rule compressRule = new PicOperations.Rule();
-        compressRule.setFileId(webpKey);
-        compressRule.setBucket(cosClientConfig.getBucket());
-        compressRule.setRule("imageMogr2/format/webp");
-        rules.add(compressRule);
-        if (file.length() > 2 * 1024) {
-            PicOperations.Rule thumbnailRule = new PicOperations.Rule();
-            String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);
-            thumbnailRule.setFileId(thumbnailKey);
-            thumbnailRule.setBucket(cosClientConfig.getBucket());
-            thumbnailRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 256, 256));
-            rules.add(thumbnailRule);
-        }
-        picOperations.setRules(rules);
         putObjectRequest.setPicOperations(picOperations);
         return cosClient.putObject(putObjectRequest);
     }
