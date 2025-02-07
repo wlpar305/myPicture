@@ -3,6 +3,7 @@ package com.wlc.picture.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wlc.picture.model.dto.picture.PictureQueryRequest;
+import com.wlc.picture.model.dto.picture.PictureReviewRequest;
 import com.wlc.picture.model.dto.picture.PictureUploadRequest;
 import com.wlc.picture.model.entity.Picture ;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -18,11 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 * @createDate 2025-02-06 11:08:39
 */
 public interface PictureService extends IService<Picture> {
-    PictureVO uploadPicture(MultipartFile multipartFile,
+    PictureVO uploadPicture(Object inputSource,
                             PictureUploadRequest pictureUploadRequest,
                             User loginUser);
     QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest);
     PictureVO getPictureVO(Picture picture, HttpServletRequest request);
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
     void validPicture(Picture picture);
+    void doPictureReview(PictureReviewRequest pictureReviewRequest, User loginUser);
+    void fillReviewParams(Picture picture, User loginUser);
 }
