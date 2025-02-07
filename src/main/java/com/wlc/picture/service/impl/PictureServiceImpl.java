@@ -4,21 +4,20 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wlc.picture.exception.BusinessException;
 import com.wlc.picture.exception.ErrorCode;
 import com.wlc.picture.exception.ThrowUtils;
+import com.wlc.picture.manager.CosManager;
 import com.wlc.picture.manager.FileManager;
 import com.wlc.picture.manager.upload.FilePictureUpload;
 import com.wlc.picture.manager.upload.PictureUploadTemplate;
 import com.wlc.picture.manager.upload.UrlPictureUpload;
 import com.wlc.picture.model.dto.file.UploadPictureResult;
-import com.wlc.picture.model.dto.picture.PictureQueryRequest;
-import com.wlc.picture.model.dto.picture.PictureReviewRequest;
-import com.wlc.picture.model.dto.picture.PictureUploadByBatchRequest;
-import com.wlc.picture.model.dto.picture.PictureUploadRequest;
+import com.wlc.picture.model.dto.picture.*;
 import com.wlc.picture.model.entity.Picture;
 import com.wlc.picture.model.entity.User;
 import com.wlc.picture.model.enums.PictureReviewStatusEnum;
@@ -32,6 +31,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +65,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Resource
     private UrlPictureUpload urlPictureUpload;
 
+    @Autowired
+    private CosManager cosManager;
+
     @Override
     public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         if (inputSource == null) {
@@ -88,6 +93,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
+        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         String picName = uploadPictureResult.getPicName();
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
             picName = pictureUploadRequest.getPicName();
@@ -296,6 +302,23 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             }
         }
         return uploadCount;
+    }
+
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery()
+                .eq(Picture::getUrl, pictureUrl)
+                .count();
+        if (count > 1) {
+            return;
+        }
+        cosManager.deleteObject(pictureUrl);
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            cosManager.deleteObject(thumbnailUrl);
+        }
     }
 
 }

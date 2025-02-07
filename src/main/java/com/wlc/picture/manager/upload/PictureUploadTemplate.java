@@ -30,12 +30,12 @@ public abstract class PictureUploadTemplate {
     @Resource
     private CosManager cosManager;
 
-    public final UploadPictureResult uploadPicture(Object inputSource, String uploadPathPrefix) {
+    public UploadPictureResult uploadPicture(Object inputSource, String uploadPathPrefix) {
         validPicture(inputSource);
         String uuid = RandomUtil.randomString(16);
-        String originFilename = getOriginFilename(inputSource);
+        String originalFilename = getOriginFilename(inputSource);
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
-                FileUtil.getSuffix(originFilename));
+                FileUtil.getSuffix(originalFilename));
         String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
         File file = null;
         try {
@@ -43,13 +43,24 @@ public abstract class PictureUploadTemplate {
             processFile(inputSource, file);
             PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
-            return buildResult(originFilename, file, uploadPath, imageInfo);
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            if (CollUtil.isNotEmpty(objectList)) {
+                CIObject compressedCiObject = objectList.get(0);
+                CIObject thumbnailCiObject = compressedCiObject;
+                if (objectList.size() > 1) {
+                    thumbnailCiObject = objectList.get(1);
+                }
+                return buildResult(originalFilename, compressedCiObject, thumbnailCiObject, imageInfo);
+            }
+            return buildResult(originalFilename, file, uploadPath, imageInfo);
         } catch (Exception e) {
             log.error("图片上传到对象存储失败", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
-            deleteTempFile(file);
+            this.deleteTempFile(file);
         }
+
     }
 
     protected abstract void validPicture(Object inputSource);

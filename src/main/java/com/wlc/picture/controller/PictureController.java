@@ -218,7 +218,7 @@ public class PictureController {
         pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
         String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
-        String cacheKey = String.format("yupicture:listPictureVOByPage:%s", hashKey);
+        String cacheKey = String.format("Mypicture:listPictureVOByPage:%s", hashKey);
         String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
         if (cachedValue != null) {
             Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);

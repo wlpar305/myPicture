@@ -10,6 +10,7 @@ import com.wlc.picture.model.entity.Picture ;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wlc.picture.model.entity.User;
 import com.wlc.picture.model.vo.PictureVO;
+import com.wlc.picture.model.dto.picture.PictureEditRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,4 +32,5 @@ public interface PictureService extends IService<Picture> {
     void fillReviewParams(Picture picture, User loginUser);
     Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest,
                                  User loginUser);
+    void clearPictureFile(Picture oldPicture);
 }
