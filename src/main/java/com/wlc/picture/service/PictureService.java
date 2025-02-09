@@ -2,18 +2,15 @@ package com.wlc.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wlc.picture.model.dto.picture.PictureQueryRequest;
-import com.wlc.picture.model.dto.picture.PictureReviewRequest;
-import com.wlc.picture.model.dto.picture.PictureUploadByBatchRequest;
-import com.wlc.picture.model.dto.picture.PictureUploadRequest;
+import com.wlc.picture.model.dto.picture.*;
 import com.wlc.picture.model.entity.Picture ;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wlc.picture.model.entity.User;
 import com.wlc.picture.model.vo.PictureVO;
-import com.wlc.picture.model.dto.picture.PictureEditRequest;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.wlc.picture.model.dto.picture.CreatePictureOutPaintingTaskRequest;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author w'l'pa'r
@@ -36,5 +33,8 @@ public interface PictureService extends IService<Picture> {
     void deletePicture(long pictureId, User loginUser);
     void checkPictureAuth(User loginUser, Picture picture);
     void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+    void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
+    //CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 
 }
