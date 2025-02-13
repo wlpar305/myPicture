@@ -9,7 +9,6 @@ import com.wlc.picture.constant.UserConstant;
 import com.wlc.picture.exception.BusinessException;
 import com.wlc.picture.exception.ErrorCode;
 import com.wlc.picture.exception.ThrowUtils;
-import com.wlc.picture.manager.auth.SpaceUserAuthManager;
 import com.wlc.picture.model.dto.space.*;
 import com.wlc.picture.model.entity.Space;
 import com.wlc.picture.model.entity.User;
@@ -37,9 +36,6 @@ public class SpaceController {
 
     @Resource
     private SpaceService spaceService;
-
-    @Resource
-    private SpaceUserAuthManager spaceUserAuthManager;
 
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
@@ -100,8 +96,8 @@ public class SpaceController {
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
         SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
         User loginUser = userService.getLoginUser(request);
-        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
-        spaceVO.setPermissionList(permissionList);
+        //List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        //spaceVO.setPermissionList(permissionList);
         return ResultUtils.success(spaceVO);
     }
 
