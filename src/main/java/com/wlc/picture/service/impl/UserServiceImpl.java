@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wlc.picture.exception.BusinessException;
 import com.wlc.picture.exception.ErrorCode;
+import com.wlc.picture.manager.auth.StpKit;
 import com.wlc.picture.model.dto.user.UserQueryRequest;
 import com.wlc.picture.model.entity.User;
 import com.wlc.picture.model.enums.UserRoleEnum;
@@ -92,6 +93,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(UserConstant.USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
 
